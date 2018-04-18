@@ -23,9 +23,14 @@ Date: 2018/04
 #define PLAYER_MODEL_PATH "Minecraft\\Pig.obj"
 #define PLAYER_UID "Player"
 
+#define OBSTACLE_MODEL_PATH "Minecraft\\Cow.obj"
+#define OBSTACLE_UID "Cow"
+
 // width of "lane", bounds for player horizontal movement and object spawning
 #define LANE_X_MAX 3.0f
 #define LANE_X_MIN -LANE_X_MAX
+#define OBSTACLE_Z_MAX -15.0f
+#define OBSTACLE_Z_START -50.0f
 
 namespace Simplex
 {
@@ -50,6 +55,12 @@ private:
 
 	// don't need a quat, b/c player won't be doing much rotating (if any)
 	float m_fPlayerRotY = 180.0f;
+
+	// Obstacles
+	std::vector<String> m_vObstactleNames;
+	uint m_uNumberObstacles = 3;
+	float m_fSpacing = 10.f;
+	float m_fSpped = 10.f;
 
 	/* Simplex variables */
 	String m_sProgrammer = "Team \"No Name\""; //programmer
@@ -198,6 +209,13 @@ private:
 	OUTPUT: ---
 	*/
 	void ReleaseControllers(void);
+
+	/*
+	USAGE: Will update the positions of the obstacles coming towards the player
+	ARGUMENTS:
+	OUTPUT: ---
+	*/
+	void UpdateObtacles(void);
 #pragma endregion
 
 #pragma region Application Controls

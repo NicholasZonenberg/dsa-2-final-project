@@ -21,32 +21,23 @@ void Application::InitVariables(void)
 
 	// set the model matrix and visibility of the player
 	m_pEntityMngr->SetAxisVisibility(true, PLAYER_UID);
+	
+	
+	// Generate the walls here
+	for (size_t i = 0; i < m_uNumberObstacles; ++i)
+	{
+		std::string name = OBSTACLE_UID;
+		name += std::to_string(i);
+		m_vObstactleNames.push_back(name);
 
-	////creeper
-	//m_pEntityMngr->AddEntity("Minecraft\\Creeper.obj", "Creeper");
-	//m_pEntityMngr->SetAxisVisibility(true, "Creeper"); //set visibility of the entity's axis
+		m_pEntityMngr->AddEntity(OBSTACLE_MODEL_PATH, name);
+		m_pEntityMngr->SetAxisVisibility(true, name);
+		m_pEntityMngr->SetModelMatrix(
+			glm::translate(vector3(3.f, 0.f, -5.f * i)) * glm::rotate(IDENTITY_M4, 90.0f, AXIS_Y),
+			name);
+	}
 
-	////steve
-	//m_pEntityMngr->AddEntity("Minecraft\\Steve.obj", "Steve");
-	//m_pEntityMngr->SetAxisVisibility(true, "Steve"); //set visibility of the entity's axis
 
-	////add an entity
-	//m_pEntityMngr->AddEntity("Minecraft\\Cow.obj", "Cow");
-	////set the model matrix and visibility of the last entity added
-	//m_pEntityMngr->SetModelMatrix(glm::translate(vector3(2.0f,-1.5f,-1.0f)));
-	//m_pEntityMngr->SetAxisVisibility(true);
-
-	////add an entity
-	//m_pEntityMngr->AddEntity("Minecraft\\Zombie.obj", "Zombie");
-	////set the model matrix and visibility of the last entity added
-	//m_pEntityMngr->SetModelMatrix(glm::translate(vector3(0.0f, -2.5f, 0.0f)));
-	//m_pEntityMngr->SetAxisVisibility(true);
-
-	////add an entity
-	//m_pEntityMngr->AddEntity("Minecraft\\Pig.obj", "Pig");
-	////set the model matrix and visibility of the last entity added
-	//m_pEntityMngr->SetModelMatrix(glm::translate(vector3(-2.0f,-1.0f,-1.0f)));
-	//m_pEntityMngr->SetAxisVisibility(true);
 }
 void Application::Update(void)
 {
@@ -100,26 +91,31 @@ void Application::Update(void)
 	// apply gravity to player velo
 	m_v3PlayerVelo += m_v3Gravity * fDeltaTime;
 
-	//Set model matrix to the creeper
-	//matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper) * ToMatrix4(m_qArcBall);
-	//m_pEntityMngr->SetModelMatrix(mCreeper, "Creeper");
-	
-
-	//Set model matrix to Steve
-	//matrix4 mSteve = glm::translate(vector3(2.5f, 0.0f, 0.0f)) * glm::rotate(IDENTITY_M4, -55.0f, AXIS_Z);
-	//m_pEntityMngr->SetModelMatrix(mSteve, "Steve");
-
-
-	//Move the last entity added slowly to the right
-	//matrix4 lastMatrix = m_pEntityMngr->GetModelMatrix();// get the model matrix of the last added
-	//lastMatrix *= glm::translate(IDENTITY_M4, vector3(0.01f, 0.0f, 0.0f)); //translate it
-	//m_pEntityMngr->SetModelMatrix(lastMatrix); //return it to its owner
+	// Move the obstacles towards the player
+	UpdateObtacles();
 
 	//Update Entity Manager
 	m_pEntityMngr->Update();
 		
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
+}
+void Application::UpdateObtacles(void)
+{
+	// Loop through all the walls
+	// Update the position of each obstacle
+	for (std::vector<String>::iterator it = m_vObstactleNames.begin(); it != m_vObstactleNames.end(); ++it)
+	{
+		matrix4 mObstacle;
+
+		// Set the model matrix
+		m_pEntityMngr->SetModelMatrix(mObstacle, *it);
+	}
+
+	// If wall position is past a certain amount
+		// Reset the wall
+		// Put back to obctascle start Z
+		// Set the X to a random value between the lane max and mins
 }
 void Application::Display(void)
 {
