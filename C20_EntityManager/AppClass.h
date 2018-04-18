@@ -1,5 +1,7 @@
 /*----------------------------------------------
-Programmer: Alberto Bobadilla (labigm@gmail.com)
+Programmer(s): 
+	Noah Ratcliff (ntr5008@g.rit.edu)
+	TODO: Add yourself here when you work on the game :)
 Date: 2017/06
 ----------------------------------------------*/
 #ifndef __APPLICATIONCLASS_H_
@@ -12,14 +14,16 @@ Date: 2017/06
 
 #include "MyEntityManager.h"
 
+// non-integral (can't be const) game constants
+#define PLAYER_MODEL_PATH "Minecraft\\Pig.obj"
+#define PLAYER_UID "Player"
+
 namespace Simplex
 {
 	//Adding Application to the Simplex namespace
 class Application
 {
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
-	vector3 m_v3Creeper; //position of the creeper
-	quaternion m_qCreeper; //orientation for the creeper
 		
 private:
 	String m_sProgrammer = "Team \"No Name\""; //programmer

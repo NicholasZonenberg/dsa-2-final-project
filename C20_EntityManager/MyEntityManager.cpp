@@ -179,6 +179,7 @@ void Simplex::MyEntityManager::AddEntity(String a_sFileName, String a_sUniqueID)
 {
 	//Create a temporal entity to store the object
 	MyEntity* pTemp = new MyEntity(a_sFileName, a_sUniqueID);
+
 	//if I was able to generate it add it to the list
 	if (pTemp->IsInitialized())
 	{
