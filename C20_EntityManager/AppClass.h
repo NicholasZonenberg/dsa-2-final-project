@@ -16,7 +16,7 @@ Date: 2017/06
 
 // non-integral (can't be const) game constants
 #define CAMERA_POS	vector3(0.0f, 3.0f, 5.0f)
-#define CAMERA_TARGET vector3(0.0f, 3.0f, 4.0f)
+#define CAMERA_TARGET CAMERA_POS - vector3(0.0f, 0.0f, 1.0f)
 #define CAMERA_PITCH -7.6f
 #define PLAYER_MODEL_PATH "Minecraft\\Pig.obj"
 #define PLAYER_UID "Player"
