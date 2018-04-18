@@ -1,8 +1,9 @@
 /*----------------------------------------------
 Programmer(s): 
+	Ben Hoffman (bah8892@g.rit.edu)
 	Noah Ratcliff (ntr5008@g.rit.edu)
 	TODO: Add yourself here when you work on the game :)
-Date: 2017/06
+Date: 2018/04
 ----------------------------------------------*/
 #ifndef __APPLICATIONCLASS_H_
 #define __APPLICATIONCLASS_H_
@@ -14,12 +15,17 @@ Date: 2017/06
 
 #include "MyEntityManager.h"
 
-// non-integral (can't be const) game constants
+/* non-integral (can't be const) game constants */
 #define CAMERA_POS	vector3(0.0f, 3.0f, 5.0f)
 #define CAMERA_TARGET CAMERA_POS - vector3(0.0f, 0.0f, 1.0f)
 #define CAMERA_PITCH -7.6f
+
 #define PLAYER_MODEL_PATH "Minecraft\\Pig.obj"
 #define PLAYER_UID "Player"
+
+// width of "lane", bounds for player horizontal movement and object spawning
+#define LANE_X_MAX 3.0f
+#define LANE_X_MIN -LANE_X_MAX
 
 namespace Simplex
 {
@@ -32,6 +38,9 @@ private:
 	/* Game variables */
 	// Player
 	vector3 m_v3PlayerPos = vector3(0.0f, 0.0f, 0.0f);
+	float m_fPlayerSpeed = 1.0f;
+	float m_fPlayerInputDirection = 0.0f; // what direction (+/-) the player should be moving in, based on input
+	float m_fPlayerInputDampening = 0.86f; // the closer to 1, the slipperier the player feels
 
 	// don't need a quat, b/c player won't be doing much rotating (if any)
 	float m_fPlayerRotY = 180.0f;

@@ -58,7 +58,31 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	//CameraRotation();
+
+	// get delta time
+	static float fDeltaTime = 0;	//store the new timer
+	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 	
+	// update player position from input
+	m_v3PlayerPos += AXIS_X * m_fPlayerInputDirection * m_fPlayerSpeed * fDeltaTime;
+	
+	// clamp player x to lane bounds
+	if (m_v3PlayerPos.x > LANE_X_MAX)
+	{
+		m_v3PlayerPos.x = LANE_X_MAX;
+		m_fPlayerInputDirection = 0.0f;
+	}
+	else if (m_v3PlayerPos.x < LANE_X_MIN) 
+	{
+		m_v3PlayerPos.x = LANE_X_MIN;
+		m_fPlayerInputDirection = 0.0f;
+	}
+	else
+	{
+		m_fPlayerInputDirection *= m_fPlayerInputDampening;
+	}
+
 	// set the player's position and rotation
 	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
 	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
