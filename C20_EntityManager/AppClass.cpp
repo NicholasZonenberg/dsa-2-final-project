@@ -51,10 +51,10 @@ void Application::Update(void)
 	m_pSystem->Update();
 
 	//Is the ArcBall active?
-	ArcBall();
+	//ArcBall();
 
 	//Is the first person camera active?
-	CameraRotation();
+	//CameraRotation();
 	
 	// set the player's position and rotation
 	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
