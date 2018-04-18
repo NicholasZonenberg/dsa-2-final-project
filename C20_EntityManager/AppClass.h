@@ -26,6 +26,14 @@ class Application
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
 		
 private:
+	/* Game variables */
+	// Player
+	vector3 m_v3PlayerPos = vector3(0.0f, 0.0f, 0.0f);
+
+	// don't need a quat, b/c player won't be doing much rotating (if any)
+	float m_fPlayerRotY = 180.0f;
+
+	/* Simplex variables */
 	String m_sProgrammer = "Team \"No Name\""; //programmer
 
 	static ImGuiObject gui; //GUI object

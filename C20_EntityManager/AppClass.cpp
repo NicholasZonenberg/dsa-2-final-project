@@ -56,6 +56,10 @@ void Application::Update(void)
 	//Is the first person camera active?
 	CameraRotation();
 	
+	// set the player's position and rotation
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
 	//Set model matrix to the creeper
 	//matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper) * ToMatrix4(m_qArcBall);
 	//m_pEntityMngr->SetModelMatrix(mCreeper, "Creeper");
