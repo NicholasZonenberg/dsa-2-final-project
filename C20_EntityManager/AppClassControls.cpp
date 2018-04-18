@@ -406,10 +406,14 @@ void Application::ProcessKeyboard(void)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)
 		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) // right 
 		m_fPlayerInputDirection += 1.0f;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)
 		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) // left
 		m_fPlayerInputDirection -= 1.0f;
 
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
+		&& m_bIsPlayerOnGround) // jump
+		m_v3PlayerVelo.y = m_fPlayerJumpVelo;
 
 //#pragma region Camera Position
 //	bool bMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||

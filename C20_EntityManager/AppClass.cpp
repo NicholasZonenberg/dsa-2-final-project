@@ -64,8 +64,18 @@ void Application::Update(void)
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 	
-	// update player position from input
-	m_v3PlayerPos += AXIS_X * m_fPlayerInputDirection * m_fPlayerSpeed * fDeltaTime;
+	// update player velocity from input
+	m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
+
+	// update player position from velocity
+	m_v3PlayerPos += m_v3PlayerVelo * fDeltaTime;
+
+	// clamp player to ground
+	if (m_v3PlayerPos.y < 0)
+		m_v3PlayerPos.y = 0;
+
+	// check if player is on ground
+	m_bIsPlayerOnGround = m_v3PlayerPos.y == 0;
 	
 	// clamp player x to lane bounds
 	if (m_v3PlayerPos.x > LANE_X_MAX)
@@ -86,6 +96,9 @@ void Application::Update(void)
 	// set the player's position and rotation
 	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
 	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+	// apply gravity to player velo
+	m_v3PlayerVelo += m_v3Gravity * fDeltaTime;
 
 	//Set model matrix to the creeper
 	//matrix4 mCreeper = glm::translate(m_v3Creeper) * ToMatrix4(m_qCreeper) * ToMatrix4(m_qArcBall);

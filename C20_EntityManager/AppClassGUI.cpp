@@ -154,6 +154,7 @@ void Application::DrawGUI(void)
 				ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 			ImGui::Text("  Left/A: Move Pig\n");
 			ImGui::Text(" Right/D: Move Pig\n");
+			ImGui::Text("	Space: Jump\n");
 			ImGui::Separator();
 			ImGui::TextColored(ImColor(255, 255, 0), "Entity Manager\n");
 		}

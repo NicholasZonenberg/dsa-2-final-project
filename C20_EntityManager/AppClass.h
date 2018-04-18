@@ -36,11 +36,17 @@ class Application
 		
 private:
 	/* Game variables */
+	// Physics
+	vector3 m_v3Gravity = vector3(0.0f, -9.8f, 0.0f);
+
 	// Player
 	vector3 m_v3PlayerPos = vector3(0.0f, 0.0f, 0.0f);
-	float m_fPlayerSpeed = 1.0f;
+	vector3 m_v3PlayerVelo = vector3(0.0f);
+	float m_fPlayerHorizSpeed = 1.0f;
 	float m_fPlayerInputDirection = 0.0f; // what direction (+/-) the player should be moving in, based on input
 	float m_fPlayerInputDampening = 0.86f; // the closer to 1, the slipperier the player feels
+	float m_fPlayerJumpVelo = 5.6f; // instantaneous y velocity applied when player jumps
+	bool m_bIsPlayerOnGround = false; // whether or not the player is on the ground
 
 	// don't need a quat, b/c player won't be doing much rotating (if any)
 	float m_fPlayerRotY = 180.0f;
