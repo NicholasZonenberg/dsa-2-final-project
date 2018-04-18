@@ -29,7 +29,7 @@ Date: 2018/04
 // width of "lane", bounds for player horizontal movement and object spawning
 #define LANE_X_MAX 3.0f
 #define LANE_X_MIN -LANE_X_MAX
-#define OBSTACLE_Z_MAX -15.0f
+#define OBSTACLE_Z_MAX 15.0f
 #define OBSTACLE_Z_START -50.0f
 
 namespace Simplex
@@ -57,10 +57,11 @@ private:
 	float m_fPlayerRotY = 180.0f;
 
 	// Obstacles
-	std::vector<String> m_vObstactleNames;
+	std::map<String, Simplex::vector3> m_mObstacles;
+
 	uint m_uNumberObstacles = 3;
 	float m_fSpacing = 10.f;
-	float m_fSpped = 10.f;
+	float m_fSpeed = 10.f;
 
 	/* Simplex variables */
 	String m_sProgrammer = "Team \"No Name\""; //programmer
@@ -212,10 +213,10 @@ private:
 
 	/*
 	USAGE: Will update the positions of the obstacles coming towards the player
-	ARGUMENTS:
+	ARGUMENTS: dt = delta time
 	OUTPUT: ---
 	*/
-	void UpdateObtacles(void);
+	void UpdateObtacles(float & dt);
 #pragma endregion
 
 #pragma region Application Controls

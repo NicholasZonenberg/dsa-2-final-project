@@ -28,16 +28,20 @@ void Application::InitVariables(void)
 	{
 		std::string name = OBSTACLE_UID;
 		name += std::to_string(i);
-		m_vObstactleNames.push_back(name);
 
 		m_pEntityMngr->AddEntity(OBSTACLE_MODEL_PATH, name);
 		m_pEntityMngr->SetAxisVisibility(true, name);
+		vector3 pos(3.f, 0.f, -5.f * i);
+		// Add this to the map of obstacles
+		m_mObstacles[name] = pos;
+
 		m_pEntityMngr->SetModelMatrix(
-			glm::translate(vector3(3.f, 0.f, -5.f * i)) * glm::rotate(IDENTITY_M4, 90.0f, AXIS_Y),
+			glm::translate(pos) * glm::rotate(IDENTITY_M4, 90.0f, AXIS_Y),
 			name);
 	}
 
-
+	// Seed random
+	srand(static_cast <unsigned> (time(0)));
 }
 void Application::Update(void)
 {
@@ -92,7 +96,7 @@ void Application::Update(void)
 	m_v3PlayerVelo += m_v3Gravity * fDeltaTime;
 
 	// Move the obstacles towards the player
-	UpdateObtacles();
+	UpdateObtacles(fDeltaTime);
 
 	//Update Entity Manager
 	m_pEntityMngr->Update();
@@ -100,16 +104,28 @@ void Application::Update(void)
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
 }
-void Application::UpdateObtacles(void)
+void Application::UpdateObtacles(float & dt)
 {
-	// Loop through all the walls
-	// Update the position of each obstacle
-	for (std::vector<String>::iterator it = m_vObstactleNames.begin(); it != m_vObstactleNames.end(); ++it)
+	std::map<String, Simplex::vector3>::iterator it;
+
+	for (it = m_mObstacles.begin(); it != m_mObstacles.end(); ++it)
 	{
-		matrix4 mObstacle;
+		// Add to this position
+		it->second.z += m_fSpeed * dt;
+
+		// Check if we need to reset this obstacle
+		if (it->second.z >= OBSTACLE_Z_MAX)
+		{
+			it->second.z = OBSTACLE_Z_START;
+			// Put the X in a random position inside the lanes
+			it->second.x = LANE_X_MIN + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (LANE_X_MAX - LANE_X_MIN)));
+		}
+
+		// Calculate new model matrix
+		matrix4 mObstacle = glm::translate(it->second) * glm::rotate(IDENTITY_M4, 90.f, AXIS_Y);
 
 		// Set the model matrix
-		m_pEntityMngr->SetModelMatrix(mObstacle, *it);
+		m_pEntityMngr->SetModelMatrix(mObstacle, it->first);
 	}
 
 	// If wall position is past a certain amount
