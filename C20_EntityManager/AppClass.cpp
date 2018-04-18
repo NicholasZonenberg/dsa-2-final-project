@@ -2,11 +2,14 @@
 using namespace Simplex;
 void Application::InitVariables(void)
 {
-	//Set the position and target of the camera
+	// Initialize camera
 	m_pCameraMngr->SetPositionTargetAndUp(
-		vector3(0.0f, 0.0f, 13.0f), //Position
-		vector3(0.0f, 0.0f, 12.0f),	//Target
-		AXIS_Y);					//Up
+		CAMERA_POS, //Position
+		CAMERA_TARGET,	//Target
+		AXIS_Y); //Up
+	
+	// Set pitch
+	m_pCameraMngr->ChangePitch(CAMERA_PITCH);
 
 	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
 	
