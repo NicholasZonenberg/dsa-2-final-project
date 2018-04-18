@@ -1,6 +1,5 @@
 # Specific files and folders
-_Binary/*D.exe
-_Binary/*D.cfg
+_Binary/
 Z_DELETE
 
 # Compiled Object files
@@ -38,4 +37,3 @@ Z_DELETE
 *.opendb
 *.db
 .vs/
-_Binary/*_d.ini
