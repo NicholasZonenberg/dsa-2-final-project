@@ -59,41 +59,8 @@ void Application::Update(void)
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 	
-	// update player velocity from input
-	m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
-
-	// update player position from velocity
-	m_v3PlayerPos += m_v3PlayerVelo * fDeltaTime;
-
-	// clamp player to ground
-	if (m_v3PlayerPos.y < 0)
-		m_v3PlayerPos.y = 0;
-
-	// check if player is on ground
-	m_bIsPlayerOnGround = m_v3PlayerPos.y == 0;
-	
-	// clamp player x to lane bounds
-	if (m_v3PlayerPos.x > LANE_X_MAX)
-	{
-		m_v3PlayerPos.x = LANE_X_MAX;
-		m_fPlayerInputDirection = 0.0f;
-	}
-	else if (m_v3PlayerPos.x < LANE_X_MIN) 
-	{
-		m_v3PlayerPos.x = LANE_X_MIN;
-		m_fPlayerInputDirection = 0.0f;
-	}
-	else
-	{
-		m_fPlayerInputDirection *= m_fPlayerInputDampening;
-	}
-
-	// set the player's position and rotation
-	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
-
-	// apply gravity to player velo
-	m_v3PlayerVelo += m_v3Gravity * fDeltaTime;
+	//move the player
+	UpdatePlayer(fDeltaTime);
 
 	// Move the obstacles towards the player
 	UpdateObtacles(fDeltaTime);
@@ -104,6 +71,69 @@ void Application::Update(void)
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
 }
+
+void Application::UpdatePlayer(float & dt)
+{
+	for (uint i=0;i<m_uNumberObstacles;i++)
+	{
+		if (m_pEntityMngr->GetEntity(0)->IsColliding(m_pEntityMngr->GetEntity(i+1)))
+		{
+			m_v3PlayerPos.z += m_fSpeed*dt;
+			if (m_fPlayerRotY < 270)
+			{
+				m_fPlayerRotY += 20.0f;
+			}
+			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+			//if the player is off screen respawn
+			if (m_v3PlayerPos.z > 8.0f)
+			{
+				PlayerRespawn();
+			}
+		}
+		else
+		{
+			// update player velocity from input
+			m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
+
+			// update player position from velocity
+			m_v3PlayerPos += m_v3PlayerVelo * dt;
+
+			// clamp player to ground
+			if (m_v3PlayerPos.y < 0)
+				m_v3PlayerPos.y = 0;
+
+			// check if player is on ground
+			m_bIsPlayerOnGround = m_v3PlayerPos.y == 0;
+
+			// clamp player x to lane bounds
+			if (m_v3PlayerPos.x > LANE_X_MAX)
+			{
+				m_v3PlayerPos.x = LANE_X_MAX;
+				m_fPlayerInputDirection = 0.0f;
+			}
+			else if (m_v3PlayerPos.x < LANE_X_MIN)
+			{
+				m_v3PlayerPos.x = LANE_X_MIN;
+				m_fPlayerInputDirection = 0.0f;
+			}
+			else
+			{
+				m_fPlayerInputDirection *= m_fPlayerInputDampening;
+			}
+
+			// set the player's position and rotation
+			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+			// apply gravity to player velo
+			m_v3PlayerVelo += m_v3Gravity * dt;
+		}
+	}
+	
+}
+
 void Application::UpdateObtacles(float & dt)
 {
 	std::map<String, Simplex::vector3>::iterator it;
@@ -132,6 +162,12 @@ void Application::UpdateObtacles(float & dt)
 		// Reset the wall
 		// Put back to obctascle start Z
 		// Set the X to a random value between the lane max and mins
+}
+
+void Application::PlayerRespawn(void)
+{
+	m_v3PlayerPos = vector3(0.0f);
+	m_fPlayerRotY = 180;
 }
 void Application::Display(void)
 {
