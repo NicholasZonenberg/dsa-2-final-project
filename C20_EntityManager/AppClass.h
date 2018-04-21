@@ -2,6 +2,7 @@
 Programmer(s): 
 	Ben Hoffman (bah8892@g.rit.edu)
 	Noah Ratcliff (ntr5008@g.rit.edu)
+	Lillian Li (jxl1885@rit.edu)
 	TODO: Add yourself here when you work on the game :)
 Date: 2018/04
 ----------------------------------------------*/
@@ -217,6 +218,16 @@ private:
 	OUTPUT: ---
 	*/
 	void UpdateObtacles(float & dt);
+
+	/*
+	USAGE: Will update the positions of the player and check if the player have collide with any incoming obstacles
+	If it does, the player will move with the wall (push back by the wall)
+	ARGUMENTS: dt = delta time
+	OUTPUT: ---
+	*/
+	void UpdatePlayer(float & dt);
+
+	void PlayerRespawn(void);
 #pragma endregion
 
 #pragma region Application Controls
