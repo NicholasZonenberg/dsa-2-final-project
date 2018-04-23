@@ -22,7 +22,9 @@ void Application::InitVariables(void)
 	// set the model matrix and visibility of the player
 	m_pEntityMngr->SetAxisVisibility(true, PLAYER_UID);
 	
-	
+	// Seed random
+	srand(static_cast <unsigned> (time(0)));
+
 	// Generate the walls here
 	for (size_t i = 0; i < m_uNumberObstacles; ++i)
 	{
@@ -31,7 +33,7 @@ void Application::InitVariables(void)
 
 		m_pEntityMngr->AddEntity(OBSTACLE_MODEL_PATH, name);
 		m_pEntityMngr->SetAxisVisibility(true, name);
-		vector3 pos(3.f, 0.f, -5.f * i);
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f + (-5.f * i));
 		// Add this to the map of obstacles
 		m_mObstacles[name] = pos;
 
@@ -39,9 +41,6 @@ void Application::InitVariables(void)
 			glm::translate(pos) * glm::rotate(IDENTITY_M4, 90.0f, AXIS_Y),
 			name);
 	}
-
-	// Seed random
-	srand(static_cast <unsigned> (time(0)));
 }
 void Application::Update(void)
 {
@@ -148,7 +147,7 @@ void Application::UpdateObtacles(float & dt)
 		{
 			it->second.z = OBSTACLE_Z_START;
 			// Put the X in a random position inside the lanes
-			it->second.x = LANE_X_MIN + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (LANE_X_MAX - LANE_X_MIN)));
+			it->second.x = GenerateRandomLaneX();
 		}
 
 		// Calculate new model matrix
@@ -157,11 +156,11 @@ void Application::UpdateObtacles(float & dt)
 		// Set the model matrix
 		m_pEntityMngr->SetModelMatrix(mObstacle, it->first);
 	}
+}
 
-	// If wall position is past a certain amount
-		// Reset the wall
-		// Put back to obctascle start Z
-		// Set the X to a random value between the lane max and mins
+float Simplex::Application::GenerateRandomLaneX()
+{
+	return LANE_X_MIN + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (LANE_X_MAX - LANE_X_MIN)));
 }
 
 void Application::PlayerRespawn(void)

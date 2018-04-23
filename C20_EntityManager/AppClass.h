@@ -60,7 +60,7 @@ private:
 	// Obstacles
 	std::map<String, Simplex::vector3> m_mObstacles;
 
-	uint m_uNumberObstacles = 3;
+	const uint m_uNumberObstacles = 15;
 	float m_fSpacing = 10.f;
 	float m_fSpeed = 10.f;
 
@@ -226,6 +226,13 @@ private:
 	OUTPUT: ---
 	*/
 	void UpdatePlayer(float & dt);
+
+	/*
+	USAGE: Create a random X value between the lanes
+	ARGUMENTS: ---
+	OUTPUT: float that will be a random x value between the min and max lane values
+	*/
+	float GenerateRandomLaneX();
 
 	void PlayerRespawn(void);
 #pragma endregion
