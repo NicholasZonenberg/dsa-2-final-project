@@ -24,9 +24,6 @@ Date: 2018/04
 #define PLAYER_MODEL_PATH "Minecraft\\Pig.obj"
 #define PLAYER_UID "Player"
 
-#define OBSTACLE_MODEL_PATH "Minecraft\\Cow.obj"
-#define OBSTACLE_UID "Cow"
-
 // width of "lane", bounds for player horizontal movement and object spawning
 #define LANE_X_MAX 3.0f
 #define LANE_X_MIN -LANE_X_MAX
@@ -59,10 +56,20 @@ private:
 
 	// Obstacles
 	std::map<String, Simplex::vector3> m_mObstacles;
+	std::map<String, Simplex::vector3> m_mCoins;
 
+	const std::string m_sCowUID = "Cow";
+	const std::string m_sCowModelPath = "Minecraft\\Cow.obj";
+
+	const std::string m_sCoinUID = "Coin";
+	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
+
+	/* Fields about the generated objects */
 	const uint m_uNumberObstacles = 15;
-	float m_fSpacing = 10.f;
+	const uint m_uNumberOfCoins = 10;
+	float m_fObstacleSpacing = 10.f;
 	float m_fSpeed = 10.f;
+	float m_fCoinSpacing = 5.0f;
 
 	/* Simplex variables */
 	String m_sProgrammer = "Team \"No Name\""; //programmer
@@ -160,6 +167,9 @@ private:
 	OUTPUT: ---
 	*/
 	void InitVariables(void);
+
+	std::map<std::string, vector3> GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing);
+
 	/*
 	USAGE: Reads the configuration of the application to a file
 	ARGUMENTS: ---
@@ -218,6 +228,13 @@ private:
 	OUTPUT: ---
 	*/
 	void UpdateObtacles(float & dt);
+
+	/*
+	USAGE: Will update the positions and rotations of the coins coming towards the player
+	ARGUMENTS: dt = delta time
+	OUTPUT: ---
+	*/
+	void UpdateCoins(float & dt);
 
 	/*
 	USAGE: Will update the positions of the player and check if the player have collide with any incoming obstacles

@@ -25,44 +25,54 @@ void Application::InitVariables(void)
 	// Seed random
 	srand(static_cast <unsigned> (time(0)));
 
-	// Generate the walls here
-	for (size_t i = 0; i < m_uNumberObstacles; ++i)
+	m_mObstacles = GenerateObjects(m_sCowUID, m_sCowModelPath, m_uNumberObstacles, m_fObstacleSpacing);
+	m_mCoins = GenerateObjects(m_sCoinUID, m_sCoinModelPath, m_uNumberOfCoins, m_fCoinSpacing);
+}
+
+std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing)
+{
+	std::map<std::string, vector3> objects;
+
+	// Generate the coins
+	for (size_t i = 0; i < a_Amount; ++i)
 	{
-		std::string name = OBSTACLE_UID;
+		std::string name = a_UID;
 		name += std::to_string(i);
 
-		m_pEntityMngr->AddEntity(OBSTACLE_MODEL_PATH, name);
+		m_pEntityMngr->AddEntity(a_ModelPath, name);
 		m_pEntityMngr->SetAxisVisibility(true, name);
-		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f + (-5.f * i));
-		// Add this to the map of obstacles
-		m_mObstacles[name] = pos;
+		
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (a_Spacing * i));
+
+		// Add this to the map of coins
+		objects[name] = pos;
 
 		m_pEntityMngr->SetModelMatrix(
 			glm::translate(pos) * glm::rotate(IDENTITY_M4, 90.0f, AXIS_Y),
 			name);
 	}
+
+	return objects;
 }
+
 void Application::Update(void)
 {
 	//Update the system so it knows how much time has passed since the last call
 	m_pSystem->Update();
-
-	//Is the ArcBall active?
-	//ArcBall();
-
-	//Is the first person camera active?
-	//CameraRotation();
 
 	// get delta time
 	static float fDeltaTime = 0;	//store the new timer
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 	
-	//move the player
+	// Move the player
 	UpdatePlayer(fDeltaTime);
 
 	// Move the obstacles towards the player
 	UpdateObtacles(fDeltaTime);
+
+	// Update the coins
+	UpdateCoins(fDeltaTime);
 
 	//Update Entity Manager
 	m_pEntityMngr->Update();
@@ -138,6 +148,34 @@ void Application::UpdateObtacles(float & dt)
 	std::map<String, Simplex::vector3>::iterator it;
 
 	for (it = m_mObstacles.begin(); it != m_mObstacles.end(); ++it)
+	{
+		// Add to this position
+		it->second.z += m_fSpeed * dt;
+
+		// Check if we need to reset this obstacle
+		if (it->second.z >= OBSTACLE_Z_MAX)
+		{
+			it->second.z = OBSTACLE_Z_START;
+			// Put the X in a random position inside the lanes
+			it->second.x = GenerateRandomLaneX();
+		}
+
+		// Calculate new model matrix
+		matrix4 mObstacle = glm::translate(it->second) * glm::rotate(IDENTITY_M4, 90.f, AXIS_Y);
+
+		// Set the model matrix
+		m_pEntityMngr->SetModelMatrix(mObstacle, it->first);
+	}
+}
+
+void Simplex::Application::UpdateCoins(float & dt)
+{
+	// No need to check if the coins are emtpy
+	//if (m_mCoins.size() <= 0) return;
+
+	std::map<String, Simplex::vector3>::iterator it;
+
+	for (it = m_mCoins.begin(); it != m_mCoins.end(); ++it)
 	{
 		// Add to this position
 		it->second.z += m_fSpeed * dt;
