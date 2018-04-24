@@ -28,7 +28,7 @@ Date: 2018/04
 #define LANE_X_MAX 3.0f
 #define LANE_X_MIN -LANE_X_MAX
 #define OBSTACLE_Z_MAX 15.0f
-#define OBSTACLE_Z_START -50.0f
+#define OBSTACLE_Z_START -1500.0f
 
 namespace Simplex
 {
@@ -65,8 +65,8 @@ private:
 	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
 
 	/* Fields about the generated objects */
-	const uint m_uNumberObstacles = 15;
-	const uint m_uNumberOfCoins = 10;
+	const uint m_uNumberObstacles = 450;
+	const uint m_uNumberOfCoins = 400;
 	float m_fObstacleSpacing = 10.f;
 	float m_fSpeed = 10.f;
 	float m_fCoinSpacing = 5.0f;
@@ -106,7 +106,11 @@ private:
 
 	sf::SoundBuffer m_soundBuffer; //buffer to play sound from
 	sf::Sound m_sound; //sound effect
-	sf::Music m_soundBGM; //background music
+	sf::Music m_soundBGM; //background music\
+
+	bool m_bOptimize = true;
+	bool m_bVisualize = true;
+	vector3 m_v3VisColor = vector3(1.0f, 1.0f, 0.0f);
 
 public:
 #pragma region Constructor / Run / Destructor

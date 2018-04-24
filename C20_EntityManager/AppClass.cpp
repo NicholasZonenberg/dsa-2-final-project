@@ -75,7 +75,34 @@ void Application::Update(void)
 	UpdateCoins(fDeltaTime);
 
 	//Update Entity Manager
-	m_pEntityMngr->Update();
+	if (!m_bOptimize) {
+		m_pEntityMngr->Update();
+	}
+	else {
+		std::vector<vector3> maxMin;
+		maxMin.push_back(vector3(LANE_X_MIN, 20, 0));
+		maxMin.push_back(vector3(LANE_X_MAX, 20, 5 * m_fObstacleSpacing));
+		std::vector<int> colidingList;
+		for (int x = 0; x < m_uNumberObstacles / 5 + 1; x++) {
+			colidingList.clear();
+			maxMin[0].z = x * 5 * m_fObstacleSpacing;
+			maxMin[1].z = (x + 1) * 5 * m_fObstacleSpacing;
+			RigidBody optSpace = RigidBody(maxMin);
+			//optSpace.m_v3CenterG.z = -25 + (x + 1) * 5 * m_fObstacleSpacing;
+			//optSpace.
+			for (int y = 0; y < m_pEntityMngr->m_uEntityCount; y++) {
+				if (m_pEntityMngr->GetEntity(y)->GetRigidBody()->IsColliding(&optSpace)) {
+					RigidBody* temp = m_pEntityMngr->GetEntity(y)->GetRigidBody();
+					colidingList.push_back(y);
+				}
+			}
+			for (int y = 0; y < colidingList.size(); y++) {
+				for (int z = y + 1; z < colidingList.size(); z++) {
+					m_pEntityMngr->GetEntity(colidingList[y])->IsColliding(m_pEntityMngr->GetEntity(colidingList[z]));
+				}
+			}
+		}
+	}
 		
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
