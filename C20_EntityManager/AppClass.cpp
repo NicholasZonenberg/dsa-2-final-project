@@ -65,44 +65,20 @@ void Application::Update(void)
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 
-	// Move the player
-	UpdatePlayer(fDeltaTime);
+	if (m_gameState == GameState::Playing)
+	{
+		// Move the player
+		UpdatePlayer(fDeltaTime);
 
-	// Move the obstacles towards the player
-	UpdateObtacles(fDeltaTime);
+		// Move the obstacles towards the player
+		UpdateObtacles(fDeltaTime);
 
-	// Update the coins
-	UpdateCoins(fDeltaTime);
+		// Update the coins
+		UpdateCoins(fDeltaTime);
+	}
 
 	//Update Entity Manager
-	if (!m_bOptimize) {
-		m_pEntityMngr->Update();
-	}
-	else {
-		std::vector<vector3> maxMin;
-		maxMin.push_back(vector3(LANE_X_MIN, 20, 0));
-		maxMin.push_back(vector3(LANE_X_MAX, 20, 5 * m_fObstacleSpacing));
-		std::vector<int> colidingList;
-		for (int x = 0; x < m_uNumberObstacles / 5 + 1; x++) {
-			colidingList.clear();
-			maxMin[0].z = x * 5 * m_fObstacleSpacing;
-			maxMin[1].z = (x + 1) * 5 * m_fObstacleSpacing;
-			RigidBody optSpace = RigidBody(maxMin);
-			//optSpace.m_v3CenterG.z = -25 + (x + 1) * 5 * m_fObstacleSpacing;
-			//optSpace.
-			for (int y = 0; y < m_pEntityMngr->m_uEntityCount; y++) {
-				if (m_pEntityMngr->GetEntity(y)->GetRigidBody()->IsColliding(&optSpace)) {
-					RigidBody* temp = m_pEntityMngr->GetEntity(y)->GetRigidBody();
-					colidingList.push_back(y);
-				}
-			}
-			for (int y = 0; y < colidingList.size(); y++) {
-				for (int z = y + 1; z < colidingList.size(); z++) {
-					m_pEntityMngr->GetEntity(colidingList[y])->IsColliding(m_pEntityMngr->GetEntity(colidingList[z]));
-				}
-			}
-		}
-	}
+	m_pEntityMngr->Update();
 
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
@@ -120,14 +96,13 @@ void Application::UpdatePlayer(float & dt)
 			{
 				m_fPlayerRotY += 20.0f;
 			}
-			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 
-			//if the player is off screen respawn
+			//if the player is off screen, game over!
 			if (m_v3PlayerPos.z > 8.0f)
 			{
-				PlayerRespawn();
+				SetGameState(GameState::GameOver);
 			}
+
 			colliding = true;
 		}
 	}
@@ -161,15 +136,14 @@ void Application::UpdatePlayer(float & dt)
 		{
 			m_fPlayerInputDirection *= m_fPlayerInputDampening;
 		}
-
-		// set the player's position and rotation
-		matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-		m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
-
-		// apply gravity to player velo
-		m_v3PlayerVelo += m_v3Gravity * dt;
 	}
 
+	// set the player's position and rotation
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+	// apply gravity to player velo
+	m_v3PlayerVelo += m_v3Gravity * dt;
 }
 
 void Application::UpdateObtacles(float & dt)
@@ -232,9 +206,16 @@ float Simplex::Application::GenerateRandomLaneX()
 
 void Application::PlayerRespawn(void)
 {
+	m_fPlayerInputDirection = 0.0f;
+	m_v3PlayerVelo = vector3(0.0f);
+
 	m_v3PlayerPos = vector3(0.0f);
 	m_fPlayerRotY = 180;
+
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 }
+
 void Application::Display(void)
 {
 	// Clear the screen
@@ -262,4 +243,41 @@ void Application::Release(void)
 
 	//release GUI
 	ShutdownGUI();
+}
+
+void Application::SetGameState(const GameState a_gameState)
+{
+	switch (a_gameState)
+	{
+	case GameState::Playing:
+		ResetObstaclesAndCoins();
+		PlayerRespawn();
+		// TODO: reset score here
+		break;
+	case GameState::GameOver:
+		break;
+	}
+
+	m_gameState = a_gameState;
+}
+
+void Application::ResetObstaclesAndCoins(void)
+{
+	std::map<String, Simplex::vector3>::iterator it;
+	int i = 0;
+
+	for (it = m_mCoins.begin(); it != m_mCoins.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fCoinSpacing * i));
+		it->second = pos;
+		i++;
+	}
+
+	i = 0;
+	for (it = m_mObstacles.begin(); it != m_mObstacles.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fObstacleSpacing * i));
+		it->second = pos;
+		i++;
+	}
 }

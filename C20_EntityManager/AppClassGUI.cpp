@@ -117,11 +117,22 @@ struct ConsoleAndLog
 };
 void Application::DrawGUI(void)
 {
+
 #pragma region Debugging Information
 	//Print info on the screen
-	uint nEmptyLines = 20;
+	uint nEmptyLines = 18;
 	for (uint i = 0; i < nEmptyLines; ++i)
 		m_pMeshMngr->PrintLine("");//Add a line on top
+
+	// show game over if game is over
+	if (m_gameState == GameState::GameOver)
+	{
+		m_pMeshMngr->PrintLine("Game Over!", C_WHITE);
+		m_pMeshMngr->PrintLine("Press space to restart.", C_WHITE);
+	}
+
+	m_pMeshMngr->PrintLine("");
+
 	//m_pMeshMngr->Print("						");
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), C_YELLOW);
 	//m_pMeshMngr->Print("						");

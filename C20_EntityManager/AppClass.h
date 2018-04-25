@@ -28,7 +28,7 @@ Date: 2018/04
 #define LANE_X_MAX 3.0f
 #define LANE_X_MIN -LANE_X_MAX
 #define OBSTACLE_Z_MAX 15.0f
-#define OBSTACLE_Z_START -1500.0f
+#define OBSTACLE_Z_START -50.0f
 
 namespace Simplex
 {
@@ -37,6 +37,12 @@ class Application
 {
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
 		
+	enum GameState
+	{
+		Playing,
+		GameOver
+	};
+
 private:
 	/* Game variables */
 	// Physics
@@ -64,9 +70,11 @@ private:
 	const std::string m_sCoinUID = "Coin";
 	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
 
+	GameState m_gameState = GameState::Playing;
+
 	/* Fields about the generated objects */
-	const uint m_uNumberObstacles = 450;
-	const uint m_uNumberOfCoins = 400;
+	const uint m_uNumberObstacles = 15;
+	const uint m_uNumberOfCoins = 10;
 	float m_fObstacleSpacing = 10.f;
 	float m_fSpeed = 10.f;
 	float m_fCoinSpacing = 5.0f;
@@ -106,11 +114,7 @@ private:
 
 	sf::SoundBuffer m_soundBuffer; //buffer to play sound from
 	sf::Sound m_sound; //sound effect
-	sf::Music m_soundBGM; //background music\
-
-	bool m_bOptimize = true;
-	bool m_bVisualize = true;
-	vector3 m_v3VisColor = vector3(1.0f, 1.0f, 0.0f);
+	sf::Music m_soundBGM; //background music
 
 public:
 #pragma region Constructor / Run / Destructor
@@ -255,7 +259,26 @@ private:
 	*/
 	float GenerateRandomLaneX();
 
+	/*
+	USAGE: Respawns the player
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
 	void PlayerRespawn(void);
+
+	/*
+	USAGE: Sets the current game state, and does any necessary initializing
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
+	void SetGameState(const GameState a_gameState);
+
+	/*
+	USAGE: Forces all obstacles to be respawned
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
+	void ResetObstaclesAndCoins(void);
 #pragma endregion
 
 #pragma region Application Controls
