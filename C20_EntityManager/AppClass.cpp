@@ -218,7 +218,9 @@ bool Simplex::Application::OptimizedCollisionDetection()
 
 	for (uint i = 0; i < m_pEntityMngr->GetEntityCount(); ++i)
 	{
-		if (m_pEntityMngr->GetEntity(i)->GetRigidBody()->GetCenterGlobal().z > 5.f) continue;
+		vector3 v3DistanceToPlayer = m_v3PlayerPos - m_pEntityMngr->GetEntity(i)->GetRigidBody()->GetCenterGlobal();
+		
+		if (glm::length2(v3DistanceToPlayer) > OPTIMIZED_COLLISION_DISTANCE * OPTIMIZED_COLLISION_DISTANCE) continue;
 		// If what we just checked was the player, then set isColldiing to true.
 		if (player->IsColliding(m_pEntityMngr->GetEntity(i)))
 		{

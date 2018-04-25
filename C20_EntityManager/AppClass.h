@@ -30,6 +30,7 @@ Date: 2018/04
 #define LANE_X_MIN -LANE_X_MAX
 #define OBSTACLE_Z_MAX 5.0f
 #define OBSTACLE_Z_START -50.0f
+#define OPTIMIZED_COLLISION_DISTANCE 2.0f
 
 namespace Simplex
 {
