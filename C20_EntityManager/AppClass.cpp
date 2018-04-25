@@ -25,9 +25,27 @@ void Application::InitVariables(void)
 	// Seed random
 	srand(static_cast <unsigned> (time(0)));
 
+#if DEBUG
+	m_uNumberObstacles = 100;
+#else 
+	m_uNumberObstacles = 800;
+#endif
+
 	// Generate the coins and obstacles
 	m_mObstacles = GenerateObjects(m_sCowUID, m_sCowModelPath, m_uNumberObstacles, m_fObstacleSpacing, Simplex::EntityLayer::Obstacle);
 	m_mCoins = GenerateObjects(m_sCoinUID, m_sCoinModelPath, m_uNumberOfCoins, m_fCoinSpacing, Simplex::EntityLayer::Coin);
+	// Create the root node to the octree
+	m_pRootOctant = new MyOctant(
+		m_pMeshMngr,		// Mesh man
+		m_pEntityMngr,		// Entity man
+		m_uOctantLevels,		// Max octant levels
+		5,				// Ideal entity count
+		5.0f,			// Size of the octant
+		vector3(0.f, 1.f, 0.f)
+	);
+
+	m_pRootOctant->AddAllEntites();
+	m_pRootOctant->BuildTree();
 }
 
 std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing, Simplex::EntityLayer a_layer)
@@ -80,6 +98,7 @@ void Application::Update(void)
 
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
+	++m_uFrameCount;
 }
 
 void Application::UpdatePlayer(float & dt)
@@ -155,9 +174,9 @@ bool Simplex::Application::BruteForceCollisionDetection()
 	bool isColliding = false;
 
 	//check collisions. This is brute force and checking every object in the scene.
-	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; i++)
+	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; ++i)
 	{
-		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); j++)
+		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); ++j)
 		{
 			// If what we just checked was the player, then set isColldiing to true.
 			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
@@ -179,29 +198,33 @@ bool Simplex::Application::BruteForceCollisionDetection()
 bool Simplex::Application::OptimizedCollisionDetection()
 {
 	bool isColliding = false;
-	// TODO: Actually make this the optimized collision detection
-	// Forevery object in the scene
-	// If it is within the bounds of the player
-		// Check if against other objects
+	// this is the octree stuff, which isnt great for this because we need
+	// to rebuild the tree so often. But, this was a project requirement so 
+	// I implmented it anyway. 
+	/*if(m_uFrameCount % 5 ==0)
+		m_pRootOctant->BuildTree();
 
-		//check collisions. This is brute force and checking every object in the scene.
-	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; i++)
-	{
-		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); j++)
+	// Update the octree collisions. Updating root will recusively call the children
+	m_pRootOctant->UpdateOctant();
+	*/
+
+	// We only need to check against the player in this case, nothing else
+	MyEntity * player = m_pEntityMngr->GetEntity(0);
+
+	for (uint i = 0; i < m_pEntityMngr->GetEntityCount(); ++i)
+	{		
+		if (m_pEntityMngr->GetEntity(i)->GetRigidBody()->GetCenterGlobal().z > 5.f) continue;
+		// If what we just checked was the player, then set isColldiing to true.
+		if (player->IsColliding(m_pEntityMngr->GetEntity(i)))
 		{
-			// If what we just checked was the player, then set isColldiing to true.
-			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
+			// Check that what we just hit was an obstcle
+			if (m_pEntityMngr->GetEntity(i)->GetEntityLayer() == EntityLayer::Obstacle)
 			{
-				// Check that what we just hit was an obstcle
-				if ((m_pEntityMngr->GetEntity(i)->GetEntityLayer() == EntityLayer::Obstacle ||
-					m_pEntityMngr->GetEntity(j)->GetEntityLayer() == EntityLayer::Obstacle) &&
-					(i == 0 || j == 0))
-				{
-					isColliding = true;
-				}
+				isColliding = true;
 			}
 		}
 	}
+	player = nullptr;
 
 	return isColliding;
 }

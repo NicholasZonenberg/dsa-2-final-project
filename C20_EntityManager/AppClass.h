@@ -15,6 +15,7 @@ Date: 2018/04
 #include "imgui\ImGuiObject.h"
 
 #include "MyEntityManager.h"
+#include "MyOctant.h"
 
 /* non-integral (can't be const) game constants */
 #define CAMERA_POS	vector3(0.0f, 3.0f, 5.0f)
@@ -25,9 +26,9 @@ Date: 2018/04
 #define PLAYER_UID "Player"
 
 // width of "lane", bounds for player horizontal movement and object spawning
-#define LANE_X_MAX 3.0f
+#define LANE_X_MAX 3.5f
 #define LANE_X_MIN -LANE_X_MAX
-#define OBSTACLE_Z_MAX 15.0f
+#define OBSTACLE_Z_MAX 5.0f
 #define OBSTACLE_Z_START -50.0f
 
 namespace Simplex
@@ -60,6 +61,12 @@ private:
 	// don't need a quat, b/c player won't be doing much rotating (if any)
 	float m_fPlayerRotY = 180.0f;
 
+	MyOctant * m_pRootOctant = nullptr;
+	uint m_uOctantLevels = 1;
+	// The flag that will determine if we are running optimal collisions or not
+	bool m_bRunOptimialCollision = true;
+	uint m_uFrameCount;
+
 	// Obstacles
 	std::map<String, Simplex::vector3> m_mObstacles;
 	std::map<String, Simplex::vector3> m_mCoins;
@@ -71,11 +78,9 @@ private:
 	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
 
 	GameState m_gameState = GameState::Playing;
-	// The flag that will determine if we are running optimal collisions or not
-	bool m_bRunOptimialCollision = false;
 
 	/* Fields about the generated objects */
-	const uint m_uNumberObstacles = 15;
+	uint m_uNumberObstacles = 800;
 	const uint m_uNumberOfCoins = 10;
 	float m_fObstacleSpacing = 10.f;
 	float m_fSpeed = 10.f;
