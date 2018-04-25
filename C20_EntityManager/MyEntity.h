@@ -9,10 +9,18 @@ Date: 2017/07
 
 namespace Simplex
 {
-
+	enum EntityLayer
+	{
+		None,
+		Player,
+		Obstacle,
+		Coin
+	};
 //System Class
 class MyEntity
 {
+	Simplex::EntityLayer m_eLayer = EntityLayer::None;
+
 	bool m_bInMemory = false; //loaded flag
 	bool m_bSetAxis = false; //render axis flag
 	String m_sUniqueID = ""; //Unique identifier name
@@ -124,6 +132,18 @@ public:
 	OUTPUT: ---
 	*/
 	void SetAxisVisible(bool a_bSetAxis = true);
+	/*
+	USAGE: Sets the layer of this object
+	ARGUMENTS: simplex::EntityLayer a_layer -> The layer you want this objcet on
+	OUTPUT: ---
+	*/
+	void SetEntityLayer(Simplex::EntityLayer a_layer);
+	/*
+	USAGE: Get the entity's layer
+	ARGUMENTS: ---
+	OUTPUT: SimplexEntityLayer & -> The layer this object is on
+	*/
+	Simplex::EntityLayer & GetEntityLayer(void);
 
 private:
 	/*

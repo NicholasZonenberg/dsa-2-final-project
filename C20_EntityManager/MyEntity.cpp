@@ -17,6 +17,14 @@ RigidBody* Simplex::MyEntity::GetRigidBody(void){	return m_pRigidBody; }
 bool Simplex::MyEntity::IsInitialized(void){ return m_bInMemory; }
 String Simplex::MyEntity::GetUniqueID(void) { return m_sUniqueID; }
 void Simplex::MyEntity::SetAxisVisible(bool a_bSetAxis) { m_bSetAxis = a_bSetAxis; }
+void Simplex::MyEntity::SetEntityLayer(Simplex::EntityLayer a_layer)
+{
+	m_eLayer = a_layer;
+}
+Simplex::EntityLayer & Simplex::MyEntity::GetEntityLayer(void)
+{
+	return m_eLayer;
+}
 //  MyEntity
 void Simplex::MyEntity::Init(void)
 {

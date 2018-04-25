@@ -178,7 +178,7 @@ private:
 	*/
 	void InitVariables(void);
 
-	std::map<std::string, vector3> GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing);
+	std::map<std::string, vector3> GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing, Simplex::EntityLayer a_layer);
 
 	/*
 	USAGE: Reads the configuration of the application to a file

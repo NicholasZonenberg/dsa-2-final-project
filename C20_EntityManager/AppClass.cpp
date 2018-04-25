@@ -17,7 +17,7 @@ void Application::InitVariables(void)
 	m_pEntityMngr = MyEntityManager::GetInstance();
 
 	// add the player
-	m_pEntityMngr->AddEntity(PLAYER_MODEL_PATH, PLAYER_UID);
+	m_pEntityMngr->AddEntity(PLAYER_MODEL_PATH, PLAYER_UID, Simplex::EntityLayer::Player);
 
 	// set the model matrix and visibility of the player
 	m_pEntityMngr->SetAxisVisibility(true, PLAYER_UID);
@@ -25,11 +25,12 @@ void Application::InitVariables(void)
 	// Seed random
 	srand(static_cast <unsigned> (time(0)));
 
-	m_mObstacles = GenerateObjects(m_sCowUID, m_sCowModelPath, m_uNumberObstacles, m_fObstacleSpacing);
-	m_mCoins = GenerateObjects(m_sCoinUID, m_sCoinModelPath, m_uNumberOfCoins, m_fCoinSpacing);
+	// Generate the coins and obstacles
+	m_mObstacles = GenerateObjects(m_sCowUID, m_sCowModelPath, m_uNumberObstacles, m_fObstacleSpacing, Simplex::EntityLayer::Obstacle);
+	m_mCoins = GenerateObjects(m_sCoinUID, m_sCoinModelPath, m_uNumberOfCoins, m_fCoinSpacing, Simplex::EntityLayer::Coin);
 }
 
-std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing)
+std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::string a_UID, const std::string a_ModelPath, const uint & a_Amount, float & a_Spacing, Simplex::EntityLayer a_layer)
 {
 	std::map<std::string, vector3> objects;
 
@@ -39,7 +40,7 @@ std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::
 		std::string name = a_UID;
 		name += std::to_string(i);
 
-		m_pEntityMngr->AddEntity(a_ModelPath, name);
+		m_pEntityMngr->AddEntity(a_ModelPath, name, a_layer);
 		m_pEntityMngr->SetAxisVisibility(true, name);
 
 		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (a_Spacing * i));
@@ -161,7 +162,13 @@ bool Simplex::Application::BruteForceCollisionDetection()
 			// If what we just checked was the player, then set isColldiing to true.
 			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
 			{
-				if (i == 0 || j == 0) isColliding = true;
+				// Check that what we just hit was an obstcle
+				if ((m_pEntityMngr->GetEntity(i)->GetEntityLayer() == EntityLayer::Obstacle ||
+					m_pEntityMngr->GetEntity(j)->GetEntityLayer() == EntityLayer::Obstacle) &&
+					(i == 0 || j == 0))
+				{
+					isColliding = true;
+				}
 			}
 		}
 	}
@@ -177,7 +184,7 @@ bool Simplex::Application::OptimizedCollisionDetection()
 	// If it is within the bounds of the player
 		// Check if against other objects
 
-	//check collisions. This is brute force and checking every object in the scene.
+		//check collisions. This is brute force and checking every object in the scene.
 	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; i++)
 	{
 		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); j++)
@@ -185,7 +192,13 @@ bool Simplex::Application::OptimizedCollisionDetection()
 			// If what we just checked was the player, then set isColldiing to true.
 			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
 			{
-				if (i == 0 || j == 0) isColliding = true;
+				// Check that what we just hit was an obstcle
+				if ((m_pEntityMngr->GetEntity(i)->GetEntityLayer() == EntityLayer::Obstacle ||
+					m_pEntityMngr->GetEntity(j)->GetEntityLayer() == EntityLayer::Obstacle) &&
+					(i == 0 || j == 0))
+				{
+					isColliding = true;
+				}
 			}
 		}
 	}
