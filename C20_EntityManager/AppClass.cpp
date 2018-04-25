@@ -85,13 +85,15 @@ void Application::UpdatePlayer(float & dt)
 {
 	bool colliding = false;
 
-	// If we are using the bad collision detection
-		// Set colliding to the BruteForceColliion Detectiona
-	// ELSE
-		// set it equal to our optmiized collision
-
-	// Brute force collision detection on the player
-	colliding = BruteForceCollisionDetection();
+	// See which optimization that we want to use
+	if (m_bRunOptimialCollision)
+	{
+		colliding = OptimizedCollisionDetection();
+	}
+	else
+	{
+		colliding = BruteForceCollisionDetection();
+	}
 	
 	if (colliding)
 	{
@@ -169,12 +171,26 @@ bool Simplex::Application::BruteForceCollisionDetection()
 
 bool Simplex::Application::OptimizedCollisionDetection()
 {
+	bool isColliding = false;
+	// TODO: Actually make this the optimized collision detection
 	// Forevery object in the scene
 	// If it is within the bounds of the player
 		// Check if against other objects
 
+	//check collisions. This is brute force and checking every object in the scene.
+	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; i++)
+	{
+		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); j++)
+		{
+			// If what we just checked was the player, then set isColldiing to true.
+			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
+			{
+				if (i == 0 || j == 0) isColliding = true;
+			}
+		}
+	}
 
-	return false;
+	return isColliding;
 }
 
 void Application::UpdateObtacles(float & dt)

@@ -71,6 +71,8 @@ private:
 	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
 
 	GameState m_gameState = GameState::Playing;
+	// The flag that will determine if we are running optimal collisions or not
+	bool m_bRunOptimialCollision = false;
 
 	/* Fields about the generated objects */
 	const uint m_uNumberObstacles = 15;

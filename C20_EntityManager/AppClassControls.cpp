@@ -137,6 +137,11 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			}
 		}
 		break;
+	case sf::Keyboard::Comma:
+		// Invert the optimal collision flag
+		std::cout << "reverse the collision detection check!" << std::endl;
+		m_bRunOptimialCollision = !m_bRunOptimialCollision;
+		break;
 	case sf::Keyboard::LShift:
 	case sf::Keyboard::RShift:
 		m_bModifier = false;
