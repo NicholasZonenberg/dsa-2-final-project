@@ -8,7 +8,7 @@ void Application::ProcessMouseMovement(sf::Event a_event)
 	sf::Vector2i window = m_pWindow->getPosition();
 	m_v3Mouse.x = static_cast<float>(mouse.x - window.x);
 	m_v3Mouse.y = static_cast<float>(mouse.y - window.y);
-	if(!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
+	if (!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
 		m_v3Mouse += vector3(-8.0f, -32.0f, 0.0f);
 	gui.io.MousePos = ImVec2(m_v3Mouse.x, m_v3Mouse.y);
 }
@@ -79,7 +79,7 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 		m_bModifier = true;
 		break;
 	}
-	
+
 	//gui
 	gui.io.KeysDown[a_event.key.code] = true;
 	gui.io.KeyCtrl = a_event.key.control;
@@ -403,94 +403,24 @@ void Application::ProcessKeyboard(void)
 	for discreet on/off use ProcessKeyboardPressed/Released
 	*/
 	// player movement
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)
-		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) // right 
-		m_fPlayerInputDirection += 1.0f;
+	if (m_gameState == GameState::Playing)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) // right 
+			m_fPlayerInputDirection += 1.0f;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)
-		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) // left
-		m_fPlayerInputDirection -= 1.0f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) // left
+			m_fPlayerInputDirection -= 1.0f;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
-		&& m_bIsPlayerOnGround) // jump
-		m_v3PlayerVelo.y = m_fPlayerJumpVelo;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
+			&& m_bIsPlayerOnGround) // jump
+			m_v3PlayerVelo.y = m_fPlayerJumpVelo;
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
+		&& m_gameState == GameState::GameOver) // restart game
+		SetGameState(GameState::Playing);
 
-//#pragma region Camera Position
-//	bool bMultiplier = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
-//		sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
-//
-//	float fMultiplier = 1.0f;
-//
-//	if (bMultiplier)
-//		fMultiplier = 5.0f;
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-//		m_pCameraMngr->MoveForward(m_fMovementSpeed * fMultiplier);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-//		m_pCameraMngr->MoveForward(-m_fMovementSpeed * fMultiplier);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-//		m_pCameraMngr->MoveSideways(-m_fMovementSpeed * fMultiplier);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-//		m_pCameraMngr->MoveSideways(m_fMovementSpeed * fMultiplier);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-//		m_pCameraMngr->MoveVertical(-m_fMovementSpeed * fMultiplier);
-//
-//	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
-//		m_pCameraMngr->MoveVertical(m_fMovementSpeed * fMultiplier);
-//#pragma endregion
-	//move the creeper
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	//	m_v3Creeper.x -= 0.1f;
-
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-	//	m_v3Creeper.x += 0.1f;
-
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-	//{
-	//	if (m_bModifier)
-	//		m_v3Creeper.z -= 0.1f;
-	//	else
-	//		m_v3Creeper.y += 0.1f;
-	//}
-
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	//{
-	//	if (m_bModifier)
-	//		m_v3Creeper.z += 0.1f;
-	//	else
-	//		m_v3Creeper.y -= 0.1f;
-	//}
-
-	////Orient the creeper
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
-	//{
-	//	if (m_bModifier)
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(1.0f, AXIS_X);
-	//	else
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(-1.0f, AXIS_X);
-	//}
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
-	//{
-	//	if (m_bModifier)
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(1.0f, AXIS_Y);
-	//	else
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(-1.0f, AXIS_Y);
-	//}
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
-	//{
-	//	if (m_bModifier)
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(1.0f, AXIS_Z);
-	//	else
-	//		m_qCreeper = m_qCreeper * glm::angleAxis(-1.0f, AXIS_Z);
-	//}
-	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-	//{
-	//	m_qCreeper = quaternion();
-	//}
 }
 //Joystick
 void Application::ProcessJoystick(void)

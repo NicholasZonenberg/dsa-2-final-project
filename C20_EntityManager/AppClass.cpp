@@ -65,14 +65,17 @@ void Application::Update(void)
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 
-	// Move the player
-	UpdatePlayer(fDeltaTime);
+	if (m_gameState == GameState::Playing)
+	{
+		// Move the player
+		UpdatePlayer(fDeltaTime);
 
-	// Move the obstacles towards the player
-	UpdateObtacles(fDeltaTime);
+		// Move the obstacles towards the player
+		UpdateObtacles(fDeltaTime);
 
-	// Update the coins
-	UpdateCoins(fDeltaTime);
+		// Update the coins
+		UpdateCoins(fDeltaTime);
+	}
 
 	//Update Entity Manager
 	m_pEntityMngr->Update();
@@ -93,13 +96,11 @@ void Application::UpdatePlayer(float & dt)
 			{
 				m_fPlayerRotY += 20.0f;
 			}
-			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 
-			//if the player is off screen respawn
+			//if the player is off screen, game over!
 			if (m_v3PlayerPos.z > 8.0f)
 			{
-				PlayerRespawn();
+				SetGameState(GameState::GameOver);
 			}
 
 			colliding = true;
@@ -135,15 +136,14 @@ void Application::UpdatePlayer(float & dt)
 		{
 			m_fPlayerInputDirection *= m_fPlayerInputDampening;
 		}
-
-		// set the player's position and rotation
-		matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-		m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
-
-		// apply gravity to player velo
-		m_v3PlayerVelo += m_v3Gravity * dt;
 	}
 
+	// set the player's position and rotation
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+	// apply gravity to player velo
+	m_v3PlayerVelo += m_v3Gravity * dt;
 }
 
 void Application::UpdateObtacles(float & dt)
@@ -206,9 +206,16 @@ float Simplex::Application::GenerateRandomLaneX()
 
 void Application::PlayerRespawn(void)
 {
+	m_fPlayerInputDirection = 0.0f;
+	m_v3PlayerVelo = vector3(0.0f);
+
 	m_v3PlayerPos = vector3(0.0f);
 	m_fPlayerRotY = 180;
+
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 }
+
 void Application::Display(void)
 {
 	// Clear the screen
@@ -236,4 +243,41 @@ void Application::Release(void)
 
 	//release GUI
 	ShutdownGUI();
+}
+
+void Application::SetGameState(const GameState a_gameState)
+{
+	switch (a_gameState)
+	{
+	case GameState::Playing:
+		ResetObstaclesAndCoins();
+		PlayerRespawn();
+		// TODO: reset score here
+		break;
+	case GameState::GameOver:
+		break;
+	}
+
+	m_gameState = a_gameState;
+}
+
+void Application::ResetObstaclesAndCoins(void)
+{
+	std::map<String, Simplex::vector3>::iterator it;
+	int i = 0;
+
+	for (it = m_mCoins.begin(); it != m_mCoins.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fCoinSpacing * i));
+		it->second = pos;
+		i++;
+	}
+
+	i = 0;
+	for (it = m_mObstacles.begin(); it != m_mObstacles.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fObstacleSpacing * i));
+		it->second = pos;
+		i++;
+	}
 }
