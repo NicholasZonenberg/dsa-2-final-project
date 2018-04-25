@@ -57,9 +57,12 @@ private:
 	float m_fPlayerInputDampening = 0.86f; // the closer to 1, the slipperier the player feels
 	float m_fPlayerJumpVelo = 5.6f; // instantaneous y velocity applied when player jumps
 	bool m_bIsPlayerOnGround = false; // whether or not the player is on the ground
+	int score = 0;
 
 	// don't need a quat, b/c player won't be doing much rotating (if any)
 	float m_fPlayerRotY = 180.0f;
+
+	float m_fCoinRotY = 0.0f;
 
 	MyOctant * m_pRootOctant = nullptr;
 	uint m_uOctantLevels = 1;
@@ -75,12 +78,12 @@ private:
 	const std::string m_sCowModelPath = "Minecraft\\Cow.obj";
 
 	const std::string m_sCoinUID = "Coin";
-	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
+	const std::string m_sCoinModelPath = "Minecraft\\Coin.obj";
 
 	GameState m_gameState = GameState::Playing;
 
 	/* Fields about the generated objects */
-	uint m_uNumberObstacles = 800;
+	uint m_uNumberObstacles = 8;
 	const uint m_uNumberOfCoins = 10;
 	float m_fObstacleSpacing = 10.f;
 	float m_fSpeed = 10.f;

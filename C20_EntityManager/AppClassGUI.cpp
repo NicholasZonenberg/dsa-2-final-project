@@ -137,6 +137,9 @@ void Application::DrawGUI(void)
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), C_YELLOW);
 	//m_pMeshMngr->Print("						");
 
+	m_pMeshMngr->Print("Score: ");//Add a line on top
+	m_pMeshMngr->PrintLine(std::to_string(score), C_WHITE);
+
 	//m_pMeshMngr->Print("						");
 	m_pMeshMngr->Print("RenderCalls: ");//Add a line on top
 	m_pMeshMngr->PrintLine(std::to_string(m_uRenderCallCount), C_YELLOW);

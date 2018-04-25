@@ -131,6 +131,11 @@ void Application::UpdatePlayer(float & dt)
 	}
 	else
 	{
+		//rotate the player back
+		if (m_fPlayerRotY > 180)
+		{
+			m_fPlayerRotY -= 20.0f;
+		}
 		// update player velocity from input
 		m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
 
@@ -273,9 +278,9 @@ void Simplex::Application::UpdateCoins(float & dt)
 			// Put the X in a random position inside the lanes
 			it->second.x = GenerateRandomLaneX();
 		}
-
+		m_fCoinRotY += 1.0f;
 		// Calculate new model matrix
-		matrix4 mObstacle = glm::translate(it->second) * glm::rotate(IDENTITY_M4, 90.f, AXIS_Y);
+		matrix4 mObstacle = glm::translate(it->second) * glm::rotate(IDENTITY_M4, m_fCoinRotY, AXIS_Y);
 
 		// Set the model matrix
 		m_pEntityMngr->SetModelMatrix(mObstacle, it->first);
@@ -297,6 +302,8 @@ void Application::PlayerRespawn(void)
 
 	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
 	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+	score = 0;
 }
 
 void Application::Display(void)
