@@ -166,7 +166,7 @@ MyEntityManager::~MyEntityManager(){Release();};
 // other methods
 void Simplex::MyEntityManager::Update(void)
 {
-	//check collisions
+	//check collisions. This is brute force and checking every object in the scene.
 	for (uint i = 0; i < m_uEntityCount - 1; i++)
 	{
 		for (uint j = i + 1; j < m_uEntityCount; j++)
@@ -214,6 +214,10 @@ void Simplex::MyEntityManager::RemoveEntity(String a_sUniqueID)
 {
 	int nIndex = GetEntityIndex(a_sUniqueID);
 	RemoveEntity((uint)nIndex);
+}
+uint & Simplex::MyEntityManager::GetEntityCount(void)
+{
+	return m_uEntityCount;
 }
 String Simplex::MyEntityManager::GetUniqueID(uint a_uIndex)
 {

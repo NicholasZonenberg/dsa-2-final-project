@@ -77,9 +77,6 @@ void Application::Update(void)
 		UpdateCoins(fDeltaTime);
 	}
 
-	//Update Entity Manager
-	m_pEntityMngr->Update();
-
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
 }
@@ -87,26 +84,30 @@ void Application::Update(void)
 void Application::UpdatePlayer(float & dt)
 {
 	bool colliding = false;
-	for (uint i = 0; i < m_uNumberObstacles; i++)
+
+	// If we are using the bad collision detection
+		// Set colliding to the BruteForceColliion Detectiona
+	// ELSE
+		// set it equal to our optmiized collision
+
+	// Brute force collision detection on the player
+	colliding = BruteForceCollisionDetection();
+	
+	if (colliding)
 	{
-		if (m_pEntityMngr->GetEntity(0)->IsColliding(m_pEntityMngr->GetEntity(i + 1)))
+		m_v3PlayerPos.z += m_fSpeed * dt;
+		if (m_fPlayerRotY < 270)
 		{
-			m_v3PlayerPos.z += m_fSpeed * dt;
-			if (m_fPlayerRotY < 270)
-			{
-				m_fPlayerRotY += 20.0f;
-			}
+			m_fPlayerRotY += 20.0f;
+		}
 
-			//if the player is off screen, game over!
-			if (m_v3PlayerPos.z > 8.0f)
-			{
-				SetGameState(GameState::GameOver);
-			}
-
-			colliding = true;
+		//if the player is off screen, game over!
+		if (m_v3PlayerPos.z > 8.0f)
+		{
+			SetGameState(GameState::GameOver);
 		}
 	}
-	if (!colliding)
+	else
 	{
 		// update player velocity from input
 		m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
@@ -144,6 +145,36 @@ void Application::UpdatePlayer(float & dt)
 
 	// apply gravity to player velo
 	m_v3PlayerVelo += m_v3Gravity * dt;
+}
+
+bool Simplex::Application::BruteForceCollisionDetection()
+{
+	bool isColliding = false;
+
+	//check collisions. This is brute force and checking every object in the scene.
+	for (uint i = 0; i < m_pEntityMngr->GetEntityCount() - 1; i++)
+	{
+		for (uint j = i + 1; j < m_pEntityMngr->GetEntityCount(); j++)
+		{
+			// If what we just checked was the player, then set isColldiing to true.
+			if (m_pEntityMngr->GetEntity(i)->IsColliding(m_pEntityMngr->GetEntity(j)))
+			{
+				if (i == 0 || j == 0) isColliding = true;
+			}
+		}
+	}
+
+	return isColliding;
+}
+
+bool Simplex::Application::OptimizedCollisionDetection()
+{
+	// Forevery object in the scene
+	// If it is within the bounds of the player
+		// Check if against other objects
+
+
+	return false;
 }
 
 void Application::UpdateObtacles(float & dt)

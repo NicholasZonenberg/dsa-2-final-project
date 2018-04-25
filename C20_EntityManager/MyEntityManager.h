@@ -56,6 +56,12 @@ public:
 	*/
 	void RemoveEntity(String a_sUniqueID);
 	/*
+	USAGE: Get the current entity count
+	ARGUMENTS: ---
+	OUTPUT: uint & -> The number of total entities in this manager
+	*/
+	uint & GetEntityCount(void);
+	/*
 	USAGE: Gets the uniqueID name of the entity indexed
 	ARGUMENTS: uint a_uIndex = -1 -> index of the queried entry, if < 0 asks for the last one added
 	OUTPUT: UniqueID of the entity, if the list is empty will return blank

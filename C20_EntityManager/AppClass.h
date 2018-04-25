@@ -253,6 +253,21 @@ private:
 	void UpdatePlayer(float & dt);
 
 	/*
+	USAGE: This is the non-optimized version of our collision detetection.
+			Used to show the scale of improvement that we have done with it.
+	ARGUMENTS: ---
+	OUTPUT: True if the player is colliding with something
+	*/
+	bool BruteForceCollisionDetection();
+
+	/*
+	USAGE: This is our optimized collision detection.
+	ARGUMENTS: ---
+	OUTPUT: true if the player is colliding with something
+	*/
+	bool OptimizedCollisionDetection();
+
+	/*
 	USAGE: Create a random X value between the lanes
 	ARGUMENTS: ---
 	OUTPUT: float that will be a random x value between the min and max lane values
