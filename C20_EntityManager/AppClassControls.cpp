@@ -75,8 +75,6 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 		m_sound.play();
 		break;
 	case sf::Keyboard::LShift:
-		m_bOptimize = !m_bOptimize;
-		break;
 	case sf::Keyboard::RShift:
 		m_bModifier = true;
 		break;
