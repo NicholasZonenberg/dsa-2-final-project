@@ -7,21 +7,21 @@ void Application::InitVariables(void)
 		CAMERA_POS, //Position
 		CAMERA_TARGET,	//Target
 		AXIS_Y); //Up
-	
+
 	// Set pitch
 	m_pCameraMngr->ChangePitch(CAMERA_PITCH);
 
 	m_pLightMngr->SetPosition(vector3(0.0f, 3.0f, 13.0f), 1); //set the position of first light (0 is reserved for ambient light)
-	
+
 	//Entity Manager
 	m_pEntityMngr = MyEntityManager::GetInstance();
-	
+
 	// add the player
 	m_pEntityMngr->AddEntity(PLAYER_MODEL_PATH, PLAYER_UID);
 
 	// set the model matrix and visibility of the player
 	m_pEntityMngr->SetAxisVisibility(true, PLAYER_UID);
-	
+
 	// Seed random
 	srand(static_cast <unsigned> (time(0)));
 
@@ -41,7 +41,7 @@ std::map<std::string, vector3> Simplex::Application::GenerateObjects(const std::
 
 		m_pEntityMngr->AddEntity(a_ModelPath, name);
 		m_pEntityMngr->SetAxisVisibility(true, name);
-		
+
 		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (a_Spacing * i));
 
 		// Add this to the map of coins
@@ -64,83 +64,86 @@ void Application::Update(void)
 	static float fDeltaTime = 0;	//store the new timer
 	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
 	fDeltaTime = m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
-	
-	// Move the player
-	UpdatePlayer(fDeltaTime);
 
-	// Move the obstacles towards the player
-	UpdateObtacles(fDeltaTime);
+	if (m_gameState == GameState::Playing)
+	{
+		// Move the player
+		UpdatePlayer(fDeltaTime);
 
-	// Update the coins
-	UpdateCoins(fDeltaTime);
+		// Move the obstacles towards the player
+		UpdateObtacles(fDeltaTime);
+
+		// Update the coins
+		UpdateCoins(fDeltaTime);
+	}
 
 	//Update Entity Manager
 	m_pEntityMngr->Update();
-		
+
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
 }
 
 void Application::UpdatePlayer(float & dt)
 {
-	for (uint i=0;i<m_uNumberObstacles;i++)
+	bool colliding = false;
+	for (uint i = 0; i < m_uNumberObstacles; i++)
 	{
-		if (m_pEntityMngr->GetEntity(0)->IsColliding(m_pEntityMngr->GetEntity(i+1)))
+		if (m_pEntityMngr->GetEntity(0)->IsColliding(m_pEntityMngr->GetEntity(i + 1)))
 		{
-			m_v3PlayerPos.z += m_fSpeed*dt;
+			m_v3PlayerPos.z += m_fSpeed * dt;
 			if (m_fPlayerRotY < 270)
 			{
 				m_fPlayerRotY += 20.0f;
 			}
-			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 
-			//if the player is off screen respawn
+			//if the player is off screen, game over!
 			if (m_v3PlayerPos.z > 8.0f)
 			{
-				PlayerRespawn();
+				SetGameState(GameState::GameOver);
 			}
+
+			colliding = true;
+		}
+	}
+	if (!colliding)
+	{
+		// update player velocity from input
+		m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
+
+		// update player position from velocity
+		m_v3PlayerPos += m_v3PlayerVelo * dt;
+
+		// clamp player to ground
+		if (m_v3PlayerPos.y < 0)
+			m_v3PlayerPos.y = 0;
+
+		// check if player is on ground
+		m_bIsPlayerOnGround = m_v3PlayerPos.y == 0;
+
+		// clamp player x to lane bounds
+		if (m_v3PlayerPos.x > LANE_X_MAX)
+		{
+			m_v3PlayerPos.x = LANE_X_MAX;
+			m_fPlayerInputDirection = 0.0f;
+		}
+		else if (m_v3PlayerPos.x < LANE_X_MIN)
+		{
+			m_v3PlayerPos.x = LANE_X_MIN;
+			m_fPlayerInputDirection = 0.0f;
 		}
 		else
 		{
-			// update player velocity from input
-			m_v3PlayerVelo.x = m_fPlayerInputDirection * m_fPlayerHorizSpeed;
-
-			// update player position from velocity
-			m_v3PlayerPos += m_v3PlayerVelo * dt;
-
-			// clamp player to ground
-			if (m_v3PlayerPos.y < 0)
-				m_v3PlayerPos.y = 0;
-
-			// check if player is on ground
-			m_bIsPlayerOnGround = m_v3PlayerPos.y == 0;
-
-			// clamp player x to lane bounds
-			if (m_v3PlayerPos.x > LANE_X_MAX)
-			{
-				m_v3PlayerPos.x = LANE_X_MAX;
-				m_fPlayerInputDirection = 0.0f;
-			}
-			else if (m_v3PlayerPos.x < LANE_X_MIN)
-			{
-				m_v3PlayerPos.x = LANE_X_MIN;
-				m_fPlayerInputDirection = 0.0f;
-			}
-			else
-			{
-				m_fPlayerInputDirection *= m_fPlayerInputDampening;
-			}
-
-			// set the player's position and rotation
-			matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
-			m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
-
-			// apply gravity to player velo
-			m_v3PlayerVelo += m_v3Gravity * dt;
+			m_fPlayerInputDirection *= m_fPlayerInputDampening;
 		}
 	}
-	
+
+	// set the player's position and rotation
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
+
+	// apply gravity to player velo
+	m_v3PlayerVelo += m_v3Gravity * dt;
 }
 
 void Application::UpdateObtacles(float & dt)
@@ -203,26 +206,33 @@ float Simplex::Application::GenerateRandomLaneX()
 
 void Application::PlayerRespawn(void)
 {
+	m_fPlayerInputDirection = 0.0f;
+	m_v3PlayerVelo = vector3(0.0f);
+
 	m_v3PlayerPos = vector3(0.0f);
 	m_fPlayerRotY = 180;
+
+	matrix4 mPlayer = glm::translate(m_v3PlayerPos) * glm::rotate(IDENTITY_M4, m_fPlayerRotY, AXIS_Y);
+	m_pEntityMngr->SetModelMatrix(mPlayer, PLAYER_UID);
 }
+
 void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
-	
+
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
-	
+
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();
 
 	//clear the render list
 	m_pMeshMngr->ClearRenderList();
-	
+
 	//draw gui
 	DrawGUI();
-	
+
 	//end the current frame (internally swaps the front and back buffers)
 	m_pWindow->display();
 }
@@ -233,4 +243,41 @@ void Application::Release(void)
 
 	//release GUI
 	ShutdownGUI();
+}
+
+void Application::SetGameState(const GameState a_gameState)
+{
+	switch (a_gameState)
+	{
+	case GameState::Playing:
+		ResetObstaclesAndCoins();
+		PlayerRespawn();
+		// TODO: reset score here
+		break;
+	case GameState::GameOver:
+		break;
+	}
+
+	m_gameState = a_gameState;
+}
+
+void Application::ResetObstaclesAndCoins(void)
+{
+	std::map<String, Simplex::vector3>::iterator it;
+	int i = 0;
+
+	for (it = m_mCoins.begin(); it != m_mCoins.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fCoinSpacing * i));
+		it->second = pos;
+		i++;
+	}
+
+	i = 0;
+	for (it = m_mObstacles.begin(); it != m_mObstacles.end(); ++it)
+	{
+		vector3 pos(GenerateRandomLaneX(), 0.f, -20.0f - (m_fObstacleSpacing * i));
+		it->second = pos;
+		i++;
+	}
 }

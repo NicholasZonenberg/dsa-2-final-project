@@ -37,6 +37,12 @@ class Application
 {
 	MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
 		
+	enum GameState
+	{
+		Playing,
+		GameOver
+	};
+
 private:
 	/* Game variables */
 	// Physics
@@ -63,6 +69,8 @@ private:
 
 	const std::string m_sCoinUID = "Coin";
 	const std::string m_sCoinModelPath = "Minecraft\\Pig.obj";
+
+	GameState m_gameState = GameState::Playing;
 
 	/* Fields about the generated objects */
 	const uint m_uNumberObstacles = 15;
@@ -251,7 +259,26 @@ private:
 	*/
 	float GenerateRandomLaneX();
 
+	/*
+	USAGE: Respawns the player
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
 	void PlayerRespawn(void);
+
+	/*
+	USAGE: Sets the current game state, and does any necessary initializing
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
+	void SetGameState(const GameState a_gameState);
+
+	/*
+	USAGE: Forces all obstacles to be respawned
+	ARGUMENTS: ---
+	OUTPUT: ---
+	*/
+	void ResetObstaclesAndCoins(void);
 #pragma endregion
 
 #pragma region Application Controls
