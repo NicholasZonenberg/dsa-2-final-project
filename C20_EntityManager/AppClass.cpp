@@ -114,19 +114,13 @@ void Application::UpdatePlayer(float & dt)
 	{
 		colliding = BruteForceCollisionDetection();
 	}
-	
+
 	if (colliding)
 	{
 		m_v3PlayerPos.z += m_fSpeed * dt;
 		if (m_fPlayerRotY < 270)
 		{
 			m_fPlayerRotY += 20.0f;
-		}
-
-		//if the player is off screen, game over!
-		if (m_v3PlayerPos.z > 8.0f)
-		{
-			SetGameState(GameState::GameOver);
 		}
 	}
 	else
@@ -164,6 +158,12 @@ void Application::UpdatePlayer(float & dt)
 		{
 			m_fPlayerInputDirection *= m_fPlayerInputDampening;
 		}
+	}
+
+	//if the player is off screen, game over!
+	if (m_v3PlayerPos.z > 5.0f)
+	{
+		SetGameState(GameState::GameOver);
 	}
 
 	// set the player's position and rotation
@@ -217,7 +217,7 @@ bool Simplex::Application::OptimizedCollisionDetection()
 	MyEntity * player = m_pEntityMngr->GetEntity(0);
 
 	for (uint i = 0; i < m_pEntityMngr->GetEntityCount(); ++i)
-	{		
+	{
 		if (m_pEntityMngr->GetEntity(i)->GetRigidBody()->GetCenterGlobal().z > 5.f) continue;
 		// If what we just checked was the player, then set isColldiing to true.
 		if (player->IsColliding(m_pEntityMngr->GetEntity(i)))
